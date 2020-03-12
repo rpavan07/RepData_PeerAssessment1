@@ -1,0 +1,96 @@
+<h2>Loading and preprocessing the data</h2>
+
+<p>data &lt;- read.csv(&quot;activity.csv&quot;)</p>
+
+<h2>What is mean total number of steps taken per day?</h2>
+
+<p>#1 - histogram of steps </p>
+
+<blockquote>
+<p>steps &lt;- tapply(data$steps, data$date, sum, na.rm=TRUE)
+png(filename = &quot;plot1.png&quot;, width=480, height=480)
+qplot(steps, xlab=&quot;steps&quot;, ylab=&quot;frequency&quot;)
+dev.off()</p>
+</blockquote>
+
+<p>#2 - mean and median</p>
+
+<blockquote>
+<p>meansteps &lt;- mean(steps)
+meansteps
+9354.23
+mediansteps &lt;- median(steps)
+mediansteps
+10395</p>
+</blockquote>
+
+<h2>What is the average daily activity pattern?</h2>
+
+<p>#1 - average</p>
+
+<blockquote>
+<p>avg &lt;- aggregate(x = list(steps = data$steps), by = list(int = data$interval), FUN = sum, na.rm=TRUE)</p>
+</blockquote>
+
+<p>#2 - timeseries plot</p>
+
+<blockquote>
+<p>png(filename = &quot;plot2.png&quot;, width=480, height=480)
+ggplot(avg, aes(x=steps, y=int)) +
+geom_line() +
+xlab(&quot;5 minute interval&quot;) +
+ylab(&quot;average steps taken&quot;)
+dev.off()</p>
+</blockquote>
+
+<p>#3 - max number of steps</p>
+
+<blockquote>
+<p>maxsteps &lt;- which.max(avg$steps)
+maxsteps
+104</p>
+</blockquote>
+
+<h2>Imputing missing values</h2>
+
+<p>#1 - number of missing values </p>
+
+<blockquote>
+<p>missing &lt;- length(which(is.na(data$steps)))
+missing
+2304</p>
+</blockquote>
+
+<p>#2 - replacing, mean, median and plotting histogram from the updated data</p>
+
+<blockquote>
+<p>datanotmissing &lt;- data[complete.cases(data), ]
+stepsnewdata &lt;- tapply(datanotmissing$steps, datanotmissing$date, sum, na.rm=TRUE)
+newmean &lt;- mean(stepsnewdata)
+newmedian &lt;- median(stepsnewdata)
+png(filename = &quot;plot3.png&quot;, width=480, height=480)
+qplot(stepsnewdata, xlab=&quot;total number of steps taken&quot;, main=&quot;DATA WITH MISSING VALUES REPLACED&quot;)
+dev.off()</p>
+</blockquote>
+
+<h2>Are there differences in activity patterns between weekdays and weekends?</h2>
+
+<p>#1 - weekend or weekday
+datanotmissing$dateType &lt;- ifelse(as.POSIXlt(datanotmissing$date)$wday %in% c(0,6), &#39;weekend&#39;, &#39;weekday&#39;)</p>
+
+<p>#2 - timeseries plot
+newavg &lt;- aggregate(steps ~ interval + dateType, data=datanotmissing, mean)</p>
+
+<blockquote>
+<p>png(&quot;plot4.png&quot;)
+ggplot(newavg, aes(interval, steps)) +</p>
+
+<ul>
+<li>geom_line() +</li>
+<li>facet_grid(dateType ~ .) +</li>
+<li>xlab(&quot;5 minute inteval&quot;) +</li>
+<li>ylab(&quot;average steps taken&quot;)
+dev.off()</li>
+</ul>
+</blockquote>
+
